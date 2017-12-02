@@ -1,0 +1,70 @@
+#+OPTIONS: ':nil *:t -:t ::t <:t H:5 \n:nil ^:{} arch:headline author:t
+#+OPTIONS: broken-links:nil c:nil creator:nil d:(not "LOGBOOK") date:t e:t
+#+OPTIONS: email:nil f:t inline:t num:t p:nil pri:nil prop:nil stat:t tags:t
+#+OPTIONS: tasks:t tex:t timestamp:t title:t toc:t todo:t |:t
+#+TITLE: GloVe Word Vectors Implementation in C++
+#+DATE: <2017-12-11 Mon>
+#+AUTHOR: Yevgnen Koh
+#+LANGUAGE: en
+#+SELECT_TAGS: export
+#+EXCLUDE_TAGS: noexport
+#+CREATOR: Emacs 25.3.1 (Org mode 9.1.4)
+#+OPTIONS: html-link-use-abs-url:nil html-postamble:auto html-preamble:t
+#+OPTIONS: html-scripts:t html-style:t html5-fancy:nil tex:t
+#+HTML_DOCTYPE: xhtml-strict
+#+HTML_CONTAINER: div
+#+DESCRIPTION:
+#+KEYWORDS:
+#+HTML_LINK_HOME:
+#+HTML_LINK_UP:
+#+HTML_MATHJAX:
+#+HTML_HEAD:
+#+HTML_HEAD_EXTRA:
+#+SUBTITLE:
+#+INFOJS_OPT:
+#+CREATOR: <a href="https://www.gnu.org/software/emacs/">Emacs</a> 25.3.1 (<a href="http://orgmode.org">Org</a> mode 9.1.4)
+#+LATEX_HEADER:
+
+* Introduction
+
+This is a C++ beginner's implementation of [[https://nlp.stanford.edu/projects/glove/][GloVe]] word vectors. During the
+implementation I learnt lots of C++ including some C++11 features. The project
+is aimed at studying and the code is not fully tested. /Use this project at your
+own risk!/
+
+** Dependencies
+
+1. [[http://arma.sourceforge.net][Armadillo: C++ linear algebra library]]
+
+2. [[https://taywee.github.io/args/][A simple single-header C++11 STL-only argument parser library]]
+
+3. [[http://uscilab.github.io/cereal/index.html][cereal - A C++11 library for serialization]]
+
+** Compilation
+
+I develop this under ~macOS 10.12.6~ using ~Apple LLVM version 9.0.0
+(clang-900.0.38)~ and ~cmake version 3.10.0~. I don't known much about C++ cross
+platform compilation yet. But if you have all dependencies installed, you may
+try to the following command the project root
+
+#+BEGIN_SRC sh
+mkdir build && cd build && cmake .. -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release && cmake --build .
+#+END_SRC
+
+Once the compilation is finished, you can train GloVe word vectors by running
+
+#+BEGIN_SRC sh
+./build/train [-h]
+#+END_SRC
+
+and perform word analogy task by running
+
+#+BEGIN_SRC sh
+./build/analogy [-h]
+#+END_SRC
+
+Good luck!
+
+* Reference
+
+1. Jeffrey Pennington, Richard Socher, and Christopher D. Manning. 2014. GloVe: Global Vectors for Word Representation.
