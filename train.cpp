@@ -73,7 +73,7 @@ int main(int argc, char** argv) {
     Vocabulary v = Vocabulary(
         args::get(min_count), args::get(vocab_size), args::get(keep_case));
     v.build(args::get(input));
-    BinaryArchiver::save(path::join({args::get(logdir), "vocab.bin"}), v);
+    BinaryArchiver::save(path::join(args::get(logdir), "vocab.bin"), v);
     std::cout << "Vocab size: " << v.size() << std::endl;
 
     // Build Co-occurrence matrix
@@ -93,7 +93,7 @@ int main(int argc, char** argv) {
     glove.train(
         co, args::get(epoch), args::get(lr), args::get(threads),
         args::get(logdir), init_epoch);
-    glove.to_txt(path::join({args::get(logdir), "wordvec.txt"}), v);
+    glove.to_txt(path::join(args::get(logdir), "wordvec.txt"), v);
 
     return 0;
 }

@@ -6,24 +6,48 @@
 #include <initializer_list>
 #include <iostream>
 #include <iterator>
+#include <sstream>
 #include <vector>
+
+std::string lower(const std::string &str);
 
 std::vector<std::string> split(
     const std::string &str, const char &delimiter = ' ');
 
-std::string join(
-    const std::vector<std::string> &strs, const char &delimiter = 0);
-std::string join(
-    std::initializer_list<std::string> lst, const char &delimiter = 0);
+template <typename Arg, typename... Args>
+std::string join(const char &delimiter, const Arg &arg, const Args &... args) {
+    if (!sizeof...(args)) {
+        return arg;
+    }
 
-std::string lower(const std::string &str);
+    std::ostringstream os;
+    os << arg;
+    static_cast<void>(
+        std::initializer_list<int>{(os << delimiter << args, 0)...});
+
+    return os.str();
+}
+
+std::string trim(
+    const std::string &s,
+    const char &delimiter = ' ',
+    bool left = true,
+    bool right = true);
+std::string trim_left(const std::string &s, const char &delimiter = ' ');
+std::string trim_right(const std::string &s, const char &delimiter = ' ');
 
 namespace path {
 
-std::string join(
-    const std::vector<std::string> &strs, const char &delimiter = '/');
-std::string join(
-    std::initializer_list<std::string> lst, const char &delimiter = '/');
+std::string normalize(const std::string &filepath, const char &delimiter);
+
+template <typename Arg, typename... Args>
+std::string join(Arg &&arg, Args &&... args) {
+    const char &delimiter = '/';
+
+    return ::join(
+        delimiter, trim_right(std::forward<Arg>(arg), delimiter),
+        trim(std::forward<Args>(args), delimiter)...);
+}
 
 }  // namespace path
 

@@ -1,12 +1,29 @@
-PROJECT(GloVe)
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8.12)
+project(GloVe DESCRIPTION "GloVe: Global Vectors for Word Representation")
 
-ADD_COMPILE_OPTIONS(-std=c++11 -Ofast)
+cmake_minimum_required(VERSION 3.1.0)
+set(CMAKE_MACOSX_RPATH 1)
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-INCLUDE_DIRECTORIES(src)
-FILE(GLOB src src/*.cpp)
-ADD_EXECUTABLE(train train.cpp ${src})
-ADD_EXECUTABLE(analogy analogy.cpp ${src})
+add_compile_options(-Ofast)
 
-TARGET_LINK_LIBRARIES(train armadillo)
-TARGET_LINK_LIBRARIES(analogy armadillo)
+include_directories(src)
+
+add_library(vocabulary OBJECT src/vocabulary.cpp)
+add_library(util OBJECT src/util.cpp)
+add_library(cooccur OBJECT src/cooccur.cpp)
+add_library(glove OBJECT src/glove.cpp)
+add_library(glove_all
+  $<TARGET_OBJECTS:vocabulary>
+  $<TARGET_OBJECTS:cooccur>
+  $<TARGET_OBJECTS:glove>
+  $<TARGET_OBJECTS:util>)
+
+add_executable(train train.cpp)
+target_link_libraries(train armadillo glove_all)
+
+add_executable(analogy analogy.cpp)
+target_link_libraries(analogy armadillo glove_all)
+
+add_executable(test_util test/util.cpp)
+target_link_libraries(test_util gtest gtest_main glove_all)
