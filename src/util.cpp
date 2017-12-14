@@ -12,20 +12,6 @@ std::string lower(const std::string &str) {
     return res;
 }
 
-std::vector<std::string> split(const std::string &str, const char &delimiter) {
-    std::istringstream iss(str);
-    std::string word;
-    std::vector<std::string> words;
-
-    while (getline(iss, word, delimiter)) {
-        if (!word.empty()) {
-            words.push_back(word);
-        }
-    }
-
-    return words;
-}
-
 std::string trim(
     const std::string &s, const char &delimiter, bool left, bool right) {
     std::size_t p = left ? s.find_first_not_of(delimiter) : 0;

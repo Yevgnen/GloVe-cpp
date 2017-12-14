@@ -12,8 +12,21 @@
 
 std::string lower(const std::string &str);
 
-std::vector<std::string> split(
-    const std::string &str, const char &delimiter = ' ');
+template <typename Container = std::vector<std::string>>
+Container split(const std::string &str, const char &delimiter = ' ') {
+    Container conts;
+
+    std::istringstream iss(str);
+    std::string word;
+
+    while (getline(iss, word, delimiter)) {
+        if (!word.empty()) {
+            conts.push_back(word);
+        }
+    }
+
+    return conts;
+}
 
 template <typename Arg, typename... Args>
 std::string join(const char &delimiter, const Arg &arg, const Args &... args) {
