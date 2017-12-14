@@ -10,13 +10,22 @@ arma::SpMat<double> CoMatrixBuilder::build(
     const Vocabulary& vocab,
     unsigned long window,
     bool symmetric) {
+    // Possible improvement to this function
+    // 1. Use a better way to pass the
+    // input stream since each single line could be very long leading to time
+    // consumed string split.
+    // 2. Don't use a sparse matrix but plain unordered_map only (with a proper
+    // hash function).
+    // 3. Use list/vector of (i, j, v) triplets instead of any maps.
+
     std::size_t vocab_size = vocab.size();
+    arma::SpMat<double> cooccur(vocab_size, vocab_size);
 
     std::ifstream ifs;
     file::open(ifs, file);
 
     std::string line;
-    std::map<std::tuple<std::size_t, std::size_t>, double> triples;
+    unsigned long ix, iy;
     while (getline(ifs, line)) {
         std::vector<std::string>&& words = split(line);
         std::string center, context;
@@ -25,39 +34,25 @@ arma::SpMat<double> CoMatrixBuilder::build(
             if (!vocab.has(center)) {
                 continue;
             }
+            ix = vocab[center];
 
             for (std::size_t j = std::max<double>(i - window, 0); j != i; ++j) {
                 context = words[j];
                 if (!vocab.has(context)) {
                     continue;
                 }
+                iy = vocab[context];
 
                 double weight = 1.0 / (i - j);
-                triples[std::tuple<std::size_t, std::size_t>(
-                    vocab[words[i]], vocab[words[j]])] += weight;
+                cooccur(ix, iy) += weight;
 
                 if (symmetric) {
-                    triples[std::tuple<std::size_t, std::size_t>(
-                        vocab[words[j]], vocab[words[i]])] += weight;
+                    cooccur(iy, ix) += weight;
                 }
             }
         }
     }
     ifs.close();
-
-    unsigned long num_values = triples.size();
-    arma::umat indices = arma::zeros<arma::umat>(2, num_values);
-    arma::vec values = arma::zeros<arma::vec>(num_values);
-
-    std::size_t i = 0;
-    for (const auto& t : triples) {
-        indices(0, i) = std::get<0>(t.first);
-        indices(1, i) = std::get<1>(t.first);
-        values(i) = t.second;
-        ++i;
-    }
-
-    arma::SpMat<double> cooccur(indices, values);
 
     return cooccur;
 }
