@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <fstream>
 #include <initializer_list>
 #include <iostream>
 #include <iterator>
@@ -50,6 +51,24 @@ std::string join(Arg &&arg, Args &&... args) {
 }
 
 }  // namespace path
+
+namespace file {
+
+template <class Stream>
+Stream &open(Stream &stream, const std::string &file) {
+    auto old_state = stream.exceptions();
+    try {
+        stream.exceptions(stream.badbit | stream.failbit);
+        stream.open(file);
+    } catch (const std::ios_base::failure &e) {
+        throw std::runtime_error("failed to open file: " + file);
+    }
+    stream.exceptions(old_state);
+
+    return stream;
+}
+
+}  // namespace file
 
 class Timer {
 public:

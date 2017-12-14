@@ -240,24 +240,24 @@ void GloVe::to_txt(const std::string& file, const Vocabulary& v) const {
     std::string center = file + ".w1";
     std::string context = file + ".w2";
 
-    std::ofstream os(meta);
+    std::ofstream os;
+    file::open(os, meta);
     os << size << std::endl;
     os.close();
 
-    os = std::ofstream(center);
+    file::open(os, center);
     for (std::size_t i = 0; i != W1.n_rows; ++i) {
         os << v[i] << " ";
         W1.row(i).raw_print(os);
     }
     os.close();
 
-    os = std::ofstream(context);
+    file::open(os, context);
     for (std::size_t i = 0; i != W2.n_rows; ++i) {
         os << v[i] << " ";
         W2.row(i).raw_print(os);
     }
     os.close();
-    return;
 }
 
 void GloVe::serialize(cereal::BinaryOutputArchive& archive) {

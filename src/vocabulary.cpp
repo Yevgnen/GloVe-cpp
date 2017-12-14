@@ -21,16 +21,16 @@ Vocabulary::Vocabulary(unsigned long mc, CountType ms, bool kc)
     : min_count(mc), max_size(ms), keep_case(kc) {}
 
 Vocabulary::Vocabulary(const std::string &file) {
-    std::ifstream ifs(file);
+    std::ifstream ifs;
+    file::open(ifs, file);
+
     std::string line, word;
     CountType freq;
     std::vector<WordFreq> v;
-    if (ifs) {
-        while (getline(ifs, line)) {
-            std::istringstream iss(line);
-            iss >> word >> freq;
-            v.emplace_back(word, freq);
-        }
+    while (getline(ifs, line)) {
+        std::istringstream iss(line);
+        iss >> word >> freq;
+        v.emplace_back(word, freq);
     }
     ifs.close();
 
@@ -59,23 +59,22 @@ void Vocabulary::build(const std::vector<WordFreq> &v) {
 }
 
 void Vocabulary::build(const std::string &file) {
-    std::ifstream ifs(file);
+    std::ifstream ifs;
+    file::open(ifs, file);
+
     std::string line;
     std::unordered_map<std::string, unsigned int> counts;
     std::string key;
 
     // Statistics
-    if (ifs) {
-        while (getline(ifs, line)) {
-            std::vector<std::string> &&_words = split(line);
+    while (getline(ifs, line)) {
+        std::vector<std::string> &&_words = split(line);
 
-            for (const auto &word : _words) {
-                key = this->keep_case ? word : lower(word);
-                ++counts[key];
-            }
+        for (const auto &word : _words) {
+            key = this->keep_case ? word : lower(word);
+            ++counts[key];
         }
     }
-    // TODO: handling exception
     ifs.close();
 
     // Remove low frequencies
@@ -168,20 +167,21 @@ void Vocabulary::clear() {
 
 void Vocabulary::to_txt(const std::string &file) const {
     std::ofstream os(file);
+    file::open(os, file);
     for (const auto &it : freq) {
         os << it.first << " " << it.second << std::endl;
     }
     os.close();
 
-    std::ofstream os1(file + ".itoa"), os2(file + ".atoi");
+    std::ofstream os1, os2;
+    file::open(os1, file + ".itoa");
+    file::open(os2, file + ".atoi");
     for (const auto &it : itoa) {
         os1 << it.first << " " << it.second << std::endl;
         os2 << it.second << " " << it.first << std::endl;
     }
     os1.close();
     os2.close();
-
-    return;
 }
 
 void Vocabulary::serialize(cereal::BinaryOutputArchive &archive) {

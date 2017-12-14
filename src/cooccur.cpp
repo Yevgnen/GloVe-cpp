@@ -12,41 +12,38 @@ arma::SpMat<double> CoMatrixBuilder::build(
     bool symmetric) {
     std::size_t vocab_size = vocab.size();
 
-    std::map<std::tuple<std::size_t, std::size_t>, double> triples;
-    std::ifstream stream(file);
-    std::string line;
+    std::ifstream ifs;
+    file::open(ifs, file);
 
-    if (stream) {
-        while (getline(stream, line)) {
-            std::vector<std::string>&& words = split(line);
-            std::string center, context;
-            for (std::size_t i = 0; i != words.size(); ++i) {
-                center = words[i];
-                if (!vocab.has(center)) {
+    std::string line;
+    std::map<std::tuple<std::size_t, std::size_t>, double> triples;
+    while (getline(ifs, line)) {
+        std::vector<std::string>&& words = split(line);
+        std::string center, context;
+        for (std::size_t i = 0; i != words.size(); ++i) {
+            center = words[i];
+            if (!vocab.has(center)) {
+                continue;
+            }
+
+            for (std::size_t j = std::max<double>(i - window, 0); j != i; ++j) {
+                context = words[j];
+                if (!vocab.has(context)) {
                     continue;
                 }
 
-                for (std::size_t j = std::max<double>(i - window, 0); j != i;
-                     ++j) {
-                    context = words[j];
-                    if (!vocab.has(context)) {
-                        continue;
-                    }
+                double weight = 1.0 / (i - j);
+                triples[std::tuple<std::size_t, std::size_t>(
+                    vocab[words[i]], vocab[words[j]])] += weight;
 
-                    double weight = 1.0 / (i - j);
+                if (symmetric) {
                     triples[std::tuple<std::size_t, std::size_t>(
-                        vocab[words[i]], vocab[words[j]])] += weight;
-
-                    if (symmetric) {
-                        triples[std::tuple<std::size_t, std::size_t>(
-                            vocab[words[j]], vocab[words[i]])] += weight;
-                    }
+                        vocab[words[j]], vocab[words[i]])] += weight;
                 }
             }
         }
     }
-    // TODO: handling exception
-    stream.close();
+    ifs.close();
 
     unsigned long num_values = triples.size();
     arma::umat indices = arma::zeros<arma::umat>(2, num_values);
