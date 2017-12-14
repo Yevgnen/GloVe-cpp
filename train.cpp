@@ -1,5 +1,6 @@
 #include <args.hxx>
 #include <armadillo>
+#include <iomanip>
 #include <iostream>
 #include <vector>
 #include "cooccur.h"
@@ -78,8 +79,13 @@ int main(int argc, char** argv) {
 
     // Build Co-occurrence matrix
     std::cout << "Building co-occurrence matrix..." << std::endl;
+    Timer timer;
+    timer.start();
     arma::sp_mat&& co = CoMatrixBuilder::build(
         args::get(input), v, args::get(window), args::get(symmetric));
+    timer.stop();
+    std::cout << "Built co-occurrence matrix (took: " << std::setprecision(3)
+              << timer.elapsed() << "s)" << std::endl;
     std::cout << "Nonzero elements: " << co.n_nonzero << std::endl;
 
     // Train
