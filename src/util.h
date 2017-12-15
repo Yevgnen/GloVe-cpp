@@ -16,13 +16,20 @@ template <typename Container = std::vector<std::string>>
 Container split(const std::string &str, const char &delimiter = ' ') {
     Container conts;
 
-    std::istringstream iss(str);
-    std::string word;
+    std::size_t start = str.find_first_not_of(delimiter);
+    std::size_t end = str.find_first_of(delimiter, start);
 
-    while (getline(iss, word, delimiter)) {
-        if (!word.empty()) {
-            conts.push_back(word);
+    while (start != std::string::npos && end != std::string::npos) {
+        std::string sub = str.substr(start, end - start);
+        if (!sub.empty()) {
+            conts.emplace_back(std::move(sub));
         }
+        start = str.find_first_not_of(delimiter, end);
+        end = str.find_first_of(delimiter, start);
+    }
+
+    if (start != std::string::npos) {
+        conts.emplace_back(std::move(str.substr(start)));
     }
 
     return conts;
