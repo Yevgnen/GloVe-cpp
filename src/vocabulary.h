@@ -21,8 +21,8 @@ class Vocabulary {
 public:
     explicit Vocabulary(
         unsigned long mc = 1, CountType ms = 1e7, bool kc = false);
-    explicit Vocabulary(const std::string &file);
     Vocabulary(const Vocabulary &other);
+    Vocabulary(Vocabulary &&other);
 
     void build(const std::vector<WordFreq> &v);
     void build(const std::string &file);

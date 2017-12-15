@@ -17,25 +17,7 @@ bool operator<(const WordFreq &w1, const WordFreq &w2) {
 
 // Vocabulary
 Vocabulary::Vocabulary(unsigned long mc, CountType ms, bool kc)
-
     : min_count(mc), max_size(ms), keep_case(kc) {}
-
-Vocabulary::Vocabulary(const std::string &file) {
-    std::ifstream ifs;
-    file::open(ifs, file);
-
-    std::string line, word;
-    CountType freq;
-    std::vector<WordFreq> v;
-    while (getline(ifs, line)) {
-        std::istringstream iss(line);
-        iss >> word >> freq;
-        v.emplace_back(word, freq);
-    }
-    ifs.close();
-
-    build(v);
-}
 
 Vocabulary::Vocabulary(const Vocabulary &other)
     : min_count(other.min_count),
@@ -44,6 +26,14 @@ Vocabulary::Vocabulary(const Vocabulary &other)
       freq(other.freq),
       itoa(other.itoa),
       atoi(other.atoi) {}
+
+Vocabulary::Vocabulary(Vocabulary &&other)
+    : min_count(other.min_count),
+      max_size(other.max_size),
+      keep_case(other.keep_case),
+      freq(std::move(other.freq)),
+      itoa(std::move(other.itoa)),
+      atoi(std::move(other.atoi)) {}
 
 void Vocabulary::build(const std::vector<WordFreq> &v) {
     clear();
