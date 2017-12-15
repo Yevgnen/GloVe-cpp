@@ -35,6 +35,7 @@ public:
     std::set<std::string> words() const;
 
     bool has(const std::string &word) const;
+    bool has(const std::string &word, bool ignore_case) const;
     std::size_t size() const;
     bool full() const;
     void clear();

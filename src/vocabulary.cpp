@@ -37,15 +37,9 @@ Vocabulary::Vocabulary(Vocabulary &&other)
 
 void Vocabulary::build(const std::vector<WordFreq> &v) {
     clear();
-    std::size_t i = 0;
     for (const auto &p : v) {
-        freq[p.first] = p.second;
-        atoi[p.first] = i;
-        itoa[i] = p.first;
-        ++i;
+        add(p.first, p.second);
     }
-
-    return;
 }
 
 void Vocabulary::build(const std::string &file) {
@@ -61,7 +55,7 @@ void Vocabulary::build(const std::string &file) {
         std::vector<std::string> &&_words = split(line);
 
         for (const auto &word : _words) {
-            key = this->keep_case ? word : lower(word);
+            key = keep_case ? word : lower(word);
             ++counts[key];
         }
     }
@@ -84,10 +78,10 @@ void Vocabulary::build(const std::string &file) {
 }
 
 void Vocabulary::add(const std::string &word, CountType freq) {
-    if (has(word)) {
-        this->freq[word] += freq;
+    std::string key = keep_case ? word : lower(word);
+    if (has(key, true)) {
+        this->freq[key] += freq;
     } else if (!full()) {
-        std::string key = this->keep_case ? word : lower(word);
         std::size_t id = size();
         this->freq[key] += freq;
         this->atoi[key] = id;
@@ -97,7 +91,13 @@ void Vocabulary::add(const std::string &word, CountType freq) {
 }
 
 bool Vocabulary::has(const std::string &word) const {
-    return freq.find(word) != freq.end();
+    return freq.count(keep_case ? word : lower(word)) > 0;
+}
+
+bool Vocabulary::has(const std::string &word, bool ignore_case) const {
+    // If `ignore_case` is `true`, find directly, else respect the private
+    // member `keep_case`
+    return ignore_case ? freq.count(word) > 0 : has(word);
 }
 
 void Vocabulary::merge(const Vocabulary &other) {
