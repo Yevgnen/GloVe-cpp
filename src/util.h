@@ -110,6 +110,15 @@ public:
             .count();
     }
 
+    template <typename F, typename... Args>
+    static double profile(F func, Args &&... args) {
+        Timer timer;
+        timer.start();
+        func(std::forward<Args>(args)...);
+        timer.stop();
+        return timer.elapsed();
+    };
+
 private:
     std::chrono::steady_clock::time_point start_time;
     std::chrono::steady_clock::time_point end_time;
