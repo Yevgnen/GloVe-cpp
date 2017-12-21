@@ -1,9 +1,8 @@
 #include "glove.h"
+#include <algorithm>
 #include <cereal/archives/binary.hpp>
 #include <fstream>
 #include <iomanip>
-#include <mutex>
-#include <stdexcept>
 #include <string>
 #include <thread>
 #include "serialization.h"
@@ -38,18 +37,13 @@ GloVe::GloVe(
 }
 
 void GloVe::train(
-    const arma::sp_mat& cooccur,
+    const CoRecs& cooccur,
     unsigned long epochs,
     double lr,
     unsigned long threads,
     const std::string& logdir,
     unsigned long init_epoch) {
-    unsigned long num_per_thread = std::ceil(cooccur.n_nonzero / threads);
-
-    if (cooccur.n_rows != vocab_size || cooccur.n_cols != vocab_size) {
-        throw std::runtime_error(
-            "Size of coccurence matrix does not match vocabulary size");
-    }
+    unsigned long num_per_thread = std::ceil(cooccur.size() / threads);
 
     std::vector<std::thread> vec_threads(threads);
     std::vector<double> partial_loss(threads);
@@ -57,7 +51,7 @@ void GloVe::train(
         Timer timer;
         timer.start();
         vec_threads.clear();
-        arma::sp_mat::const_iterator iter = cooccur.begin(), begin, end;
+        CoRecs::const_iterator iter = cooccur.begin(), begin, end;
         for (std::size_t i = 0; i != threads; ++i) {
             begin = iter;
             end =
@@ -75,7 +69,7 @@ void GloVe::train(
 
         double loss =
             std::accumulate(partial_loss.begin(), partial_loss.end(), 0.0) /
-            cooccur.n_nonzero;
+            cooccur.size();
 
         timer.stop();
         std::cout << std::fixed << "Epoch " << std::setw(3) << epoch
@@ -91,9 +85,9 @@ void GloVe::train(
 }
 
 double GloVe::train_thread(
-    const arma::sp_mat& cooccur,
-    arma::sp_mat::const_iterator begin,
-    arma::sp_mat::const_iterator end,
+    const CoRecs& cooccur,
+    CoRecs::const_iterator begin,
+    CoRecs::const_iterator end,
     double& loss,
     double lr) {
     loss = 0.0;
@@ -105,8 +99,8 @@ double GloVe::train_thread(
 
     double value, weight, sigma, l;
     for (auto iter = begin; iter != end; ++iter) {
-        arma::uword i = iter.row(), j = iter.col();
-        value = *iter;
+        arma::uword i = iter->i, j = iter->j;
+        value = iter->weight;
         weight = weighted(value);
         sigma = difference(W1.row(i), W2.row(j), b1(i), b2(j), std::log(value));
         l = 0.5 * weight * std::pow(sigma, 2);

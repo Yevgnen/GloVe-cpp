@@ -74,6 +74,7 @@ int main(int argc, char** argv) {
     Vocabulary v = Vocabulary(
         args::get(min_count), args::get(vocab_size), args::get(keep_case));
     v.build(args::get(input));
+    v.sort("desc");
     BinaryArchiver::save(path::join(args::get(logdir), "vocab.bin"), v);
     std::cout << "Vocab size: " << v.size() << std::endl;
 
@@ -81,12 +82,12 @@ int main(int argc, char** argv) {
     std::cout << "Building co-occurrence matrix..." << std::endl;
     Timer timer;
     timer.start();
-    arma::sp_mat&& co = CoMatrixBuilder::build(
+    CoRecs&& co = CoMatrixBuilder::build(
         args::get(input), v, args::get(window), args::get(symmetric));
     timer.stop();
     std::cout << "Built co-occurrence matrix (took: " << std::setprecision(3)
               << timer.elapsed() << "s)" << std::endl;
-    std::cout << "Nonzero elements: " << co.n_nonzero << std::endl;
+    std::cout << "Nonzero elements: " << co.size() << std::endl;
 
     // Train
     std::cout << "Training..." << std::endl;

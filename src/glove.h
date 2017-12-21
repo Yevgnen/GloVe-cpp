@@ -4,8 +4,8 @@
 #include <armadillo>
 #include <cereal/archives/binary.hpp>
 #include <iostream>
-#include <map>
 #include <vector>
+#include "cooccur.h"
 #include "serialization.h"
 #include "vocabulary.h"
 
@@ -23,16 +23,16 @@ public:
         double threshold = 100);
 
     void train(
-        const arma::sp_mat& cooccur,
+        const CoRecs& cooccur,
         unsigned long epoch = 10,
         double lr = 1e-3,
         unsigned long threads = 12,
         const std::string& logdir = "./",
         unsigned long init_epoch = 0);
     double train_thread(
-        const arma::sp_mat& cooccur,
-        arma::sp_mat::const_iterator begin,
-        arma::sp_mat::const_iterator end,
+        const CoRecs& cooccur,
+        CoRecs::const_iterator begin,
+        CoRecs::const_iterator end,
         double& loss,
         double lr);
     inline double difference(
