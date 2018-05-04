@@ -98,6 +98,8 @@ int main(int argc, char** argv) {
     if (model) {
         BinaryArchiver::load(args::get(model), glove);
         init_epoch = std::stol(split(args::get(model), '.').at(3)) + 1;
+        std::cout << "Loaded previous trained model: " << args::get(model)
+                  << std::endl;
     }
     glove.train(
         co, args::get(epoch), args::get(lr), args::get(threads),
