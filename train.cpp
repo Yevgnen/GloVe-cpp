@@ -2,6 +2,7 @@
 #include <armadillo>
 #include <iomanip>
 #include <iostream>
+#include <thread>
 #include <vector>
 #include "cooccur.h"
 #include "glove.h"
@@ -45,7 +46,8 @@ int main(int argc, char** argv) {
     args::ValueFlag<double> lr(
         parser, "lr", "Learning rate", {"lr", "learning-rate"}, 1e-3);
     args::ValueFlag<unsigned long> threads(
-        parser, "threads", "Number of threads to use", {"threads"}, 12);
+        parser, "threads", "Number of threads to use", {"threads"},
+        std::thread::hardware_concurrency());
     args::ValueFlag<unsigned long> seed(
         parser, "seed", "Random seed (should > 0)", {"seed"});
 
