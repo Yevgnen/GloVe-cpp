@@ -42,7 +42,8 @@ void GloVe::train(
     double lr,
     unsigned long threads,
     const std::string& logdir,
-    unsigned long init_epoch) {
+    unsigned long init_epoch,
+    unsigned long chkpt_freq) {
     unsigned long num_per_thread = std::ceil(cooccur.size() / threads);
 
     std::vector<std::thread> vec_threads(threads);
@@ -76,10 +77,12 @@ void GloVe::train(
                   << " (took:  " << std::setprecision(3) << timer.elapsed()
                   << "s): Loss: " << std::setprecision(6) << loss << std::endl;
 
-        std::string chkpt = "glove." + std::to_string(vocab_size) + "." +
-                            std::to_string(size) + "." + std::to_string(epoch);
-
-        BinaryArchiver::save(logdir + chkpt, *this);
+        if (!((epoch + 1) % chkpt_freq) || !epoch) {
+            std::string chkpt = "glove." + std::to_string(vocab_size) + "." +
+                                std::to_string(size) + "." +
+                                std::to_string(epoch);
+            BinaryArchiver::save(logdir + chkpt, *this);
+        }
     }
     return;
 }

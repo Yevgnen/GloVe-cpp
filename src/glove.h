@@ -28,7 +28,8 @@ public:
         double lr = 1e-3,
         unsigned long threads = 12,
         const std::string& logdir = "./",
-        unsigned long init_epoch = 0);
+        unsigned long init_epoch = 0,
+        unsigned long chkpt_freq = 1);
     double train_thread(
         const CoRecs& cooccur,
         CoRecs::const_iterator begin,

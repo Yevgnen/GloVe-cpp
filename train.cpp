@@ -48,6 +48,9 @@ int main(int argc, char** argv) {
     args::ValueFlag<unsigned long> threads(
         parser, "threads", "Number of threads to use", {"threads"},
         std::thread::hardware_concurrency());
+    args::ValueFlag<unsigned long> chkpt_freq(
+        parser, "chkpt_freq", "Save checkpoint every given epochs",
+        {"chkpt_freq"}, 5);
     args::ValueFlag<unsigned long> seed(
         parser, "seed", "Random seed (should > 0)", {"seed"});
 
@@ -103,7 +106,7 @@ int main(int argc, char** argv) {
     }
     glove.train(
         co, args::get(epoch), args::get(lr), args::get(threads),
-        args::get(logdir), init_epoch);
+        args::get(logdir), init_epoch, args::get(chkpt_freq));
     glove.to_txt(path::join(args::get(logdir), "wordvec.txt"), v);
 
     return 0;
